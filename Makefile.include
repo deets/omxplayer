@@ -1,13 +1,13 @@
-USE_BUILDROOT=0
+USE_BUILDROOT=1
 FLOAT=hard
 
 ifeq ($(USE_BUILDROOT), 1)
-BUILDROOT	:=/opt/xbmc-bcm/buildroot
+BUILDROOT	:=/tmp/omxplayer
 SDKSTAGE	:=$(BUILDROOT)/output/staging
 TARGETFS	:=$(BUILDROOT)/output/target
-TOOLCHAIN	:=$(BUILDROOT)/output/host/usr/
-HOST			:=arm-unknown-linux-gnueabi
-SYSROOT		:=$(BUILDROOT)/output/host/usr/arm-unknown-linux-gnueabi/sysroot
+TOOLCHAIN	:=/home/deets/rpi/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64
+HOST		:=arm-linux-gnueabihf
+SYSROOT		:=/home/deets/rpi/root
 else
 BUILDROOT	:=/opt/bcm-rootfs
 SDKSTAGE	:=/opt/bcm-rootfs
@@ -20,7 +20,7 @@ endif
 
 JOBS=7
 
-CFLAGS			:= -isystem$(PREFIX)/include
+CFLAGS			:= -isystem $(SYSROOT)/usr/include
 CXXFLAGS		:= $(CFLAGS)
 CPPFLAGS		:= $(CFLAGS)
 LDFLAGS			:= -L$(BUILDROOT)/lib
@@ -32,9 +32,8 @@ RANLIB			:= $(TOOLCHAIN)/bin/$(HOST)-ranlib
 STRIP				:= $(TOOLCHAIN)/bin/$(HOST)-strip
 AR 					:= $(TOOLCHAIN)/bin/$(HOST)-ar
 CXXCP 			:= $(CXX) -E
-PATH 				:= $(PREFIX)/bin:$(BUILDROOT)/output/host/usr/bin:$(PATH)
+PATH 				:= $(PREFIX)/bin:$(BUILDROOT)/output/host/usr/bin:$(PATH):$(TOOLCHAIN)/bin
 
 CFLAGS			+= -pipe -mfloat-abi=$(FLOAT) -mcpu=arm1176jzf-s -fomit-frame-pointer -mabi=aapcs-linux -mtune=arm1176jzf-s -mfpu=vfp -Wno-psabi -mno-apcs-stack-check -g -mstructure-size-boundary=32 -mno-sched-prolog
-LDFLAGS			+= -L$(SDKSTAGE)/lib -L$(SDKSTAGE)/usr/lib -L$(SDKSTAGE)/opt/vc/lib/ -Lpcre/build
-#INCLUDES		+= -isystem$(SDKSTAGE)/usr/include -isystem$(SDKSTAGE)/opt/vc/include -isystem$(SYSROOT)/usr/include -isystem$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads -isystem$(SDKSTAGE)/usr/include/freetype2
-INCLUDES		+= -isystem$(SDKSTAGE)/opt/vc/include -isystem$(SYSROOT)/usr/include -isystem$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads -Ipcre/build -Iboost-trunk -Ifreetype2/include
+LDFLAGS			+= -L$(SYSROOT)/lib -L$(SYSROOT)/usr/lib -L$(SYSROOT)/opt/vc/lib/
+INCLUDES		+= -isystem $(SYSROOT)/opt/vc/include -isystem $(SYSROOT)/usr/include -isystem $(SYSROOT)/opt/vc/include/interface/vmcs_host/linux/ -isystem $(SYSROOT)/opt/vc/include/interface/vcos/pthreads -I$(SYSROOT)/usr/include/pcre/build -I$(SYSROOT)/usr/include/boost-trunk -I$(SYSROOT)/usr/include/freetype2 -I$(SYSROOT)/usr/lib/$(HOST)/dbus-1.0/include

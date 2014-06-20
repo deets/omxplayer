@@ -15,11 +15,12 @@ compile:
 
 configure: 
 	cd ffmpeg; \
-	CFLAGS="$(CFLAGS) ${INCLUDES}" \
-	LDFLAGS="" \
+	CFLAGS="$(CFLAGS) ${INCLUDES} --sysroot=$(SYSROOT)" \
+	LDFLAGS="-Wl,-v  --sysroot=$(SYSROOT) -ldl" \
   ./configure \
 			--extra-cflags="-mfpu=vfp -mfloat-abi=$(FLOAT) -mno-apcs-stack-check -mstructure-size-boundary=32 -mno-sched-prolog" \
 			--enable-cross-compile \
+			--extra-libs=-ldl\
 			--enable-shared \
 			--disable-static \
 			--arch=arm \
@@ -34,7 +35,6 @@ configure:
 			--disable-ffprobe \
 			--disable-ffplay \
 			--disable-ffserver \
-			--disable-ffmpeg \
 			--enable-shared \
 			--disable-doc \
 			--disable-postproc \
